@@ -1,8 +1,13 @@
+import 'package:chat_socket/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:chat_socket/widgets/custom_buttom.dart';
 import 'package:chat_socket/widgets/custom_input.dart';
 import 'package:chat_socket/widgets/labels.dart';
 import 'package:chat_socket/widgets/logo.dart';
+
+import 'package:chat_socket/helpers/mostar_alerta.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -48,6 +53,7 @@ class __FormState extends State<_Form> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -59,20 +65,33 @@ class __FormState extends State<_Form> {
             keyboardType: TextInputType.emailAddress,
             textController: emailCtrl,
           ),
-
           CustomInput(
             icon: Icons.lock_outline,
             placeholder: 'Password',
             textController: passCtrl,
             isPassword: true,
           ),
-
-          //TODO: Crear Boton
           CustomButtom(
               text: 'Iniciar sesión',
-              onPressed: () {
-                print('Valores leídos: ${emailCtrl.text} ${passCtrl.text}');
-              }),
+              onPressed: authService.autenticando
+                  ? null
+                  : () async {
+                      //print('Valores leídos: ${emailCtrl.text} ${passCtrl.text}');
+                      FocusScope.of(context)
+                          .unfocus(); // Para que desaparezca el teclado
+                      final loginOk = await authService.login(
+                          emailCtrl.text.trim(), passCtrl.text.trim());
+                      // Ya sabemos si el login fue exitoso o no
+                      if (loginOk) {
+                        // TODO: Conectar a nuestro socket server
+                        // Navegamos a otra pantalla
+                        Navigator.pushReplacementNamed(context, 'users');
+                      } else {
+                        // Mostar alerta
+                        mostrarAlerta(context, 'Login incorrecto',
+                            'Revise sus credenciales nuevamente');
+                      }
+                    }),
         ],
       ),
     );

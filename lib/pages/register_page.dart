@@ -1,8 +1,11 @@
+import 'package:chat_socket/helpers/mostar_alerta.dart';
+import 'package:chat_socket/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_socket/widgets/custom_buttom.dart';
 import 'package:chat_socket/widgets/custom_input.dart';
 import 'package:chat_socket/widgets/labels.dart';
 import 'package:chat_socket/widgets/logo.dart';
+import 'package:provider/provider.dart';
 
 class RegisterPage extends StatelessWidget {
   @override
@@ -50,6 +53,7 @@ class __FormState extends State<_Form> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -79,10 +83,26 @@ class __FormState extends State<_Form> {
           //TODO: Crear Boton
           CustomButtom(
               text: 'Crear cuenta',
-              onPressed: () {
-                print(
-                    'Valores leídos: ${nameCtrl.text} ${emailCtrl.text} ${passCtrl.text}');
-              }),
+              onPressed: authService.autenticando
+                  ? null
+                  : () async {
+                      print(
+                          'Valores leídos: ${nameCtrl.text} ${emailCtrl.text} ${passCtrl.text}');
+                      FocusScope.of(context)
+                          .unfocus(); // Para que desaparezca el teclado
+                      final registerOk = await authService.register(
+                          nameCtrl.text.trim(),
+                          emailCtrl.text.trim(),
+                          passCtrl.text.trim());
+                      if (registerOk == true) {
+                        // TODO: Conectar a nuestro socket server
+                        // Navegamos a otra pantalla
+                        Navigator.pushReplacementNamed(context, 'users');
+                      } else {
+                        mostrarAlerta(
+                            context, 'Registro incorrecto', registerOk);
+                      }
+                    }),
         ],
       ),
     );

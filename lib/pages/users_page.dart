@@ -1,13 +1,15 @@
+import 'package:chat_socket/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:chat_socket/models/usuario.dart';
 
-class UserPage extends StatefulWidget {
+class UsersPage extends StatefulWidget {
   @override
-  _UserPageState createState() => _UserPageState();
+  _UsersPageState createState() => _UsersPageState();
 }
 
-class _UserPageState extends State<UserPage> {
+class _UsersPageState extends State<UsersPage> {
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
@@ -21,10 +23,13 @@ class _UserPageState extends State<UserPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    final usuario = authService.usuario;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Mi nombre',
+          usuario.nombre,
           style: TextStyle(color: Colors.black54),
         ),
         elevation: 1,
@@ -34,7 +39,12 @@ class _UserPageState extends State<UserPage> {
             Icons.exit_to_app,
             color: Colors.black54,
           ),
-          onPressed: () {},
+          onPressed: () {
+            // TODO: Desconectarnos del Socket server
+            // Llamo al metodo estatico de borrar el token
+            Navigator.pushReplacementNamed(context, 'login');
+            AuthService.deleteToken();
+          },
         ),
         actions: [
           Container(
