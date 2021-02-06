@@ -1,5 +1,6 @@
 import 'package:chat_socket/helpers/mostar_alerta.dart';
 import 'package:chat_socket/services/auth_service.dart';
+import 'package:chat_socket/services/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_socket/widgets/custom_buttom.dart';
 import 'package:chat_socket/widgets/custom_input.dart';
@@ -54,6 +55,8 @@ class __FormState extends State<_Form> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
+
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -80,7 +83,7 @@ class __FormState extends State<_Form> {
             isPassword: true,
           ),
 
-          //TODO: Crear Boton
+          // Crear Boton
           CustomButtom(
               text: 'Crear cuenta',
               onPressed: authService.autenticando
@@ -95,7 +98,8 @@ class __FormState extends State<_Form> {
                           emailCtrl.text.trim(),
                           passCtrl.text.trim());
                       if (registerOk == true) {
-                        // TODO: Conectar a nuestro socket server
+                        // Conectar a nuestro socket server
+                        socketService.connectSocket();
                         // Navegamos a otra pantalla
                         Navigator.pushReplacementNamed(context, 'users');
                       } else {
